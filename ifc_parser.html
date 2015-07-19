@@ -56,24 +56,43 @@
       }
     }
 
+    // function to check if a given string is an array and exists in the array
+    function checkIfRef(string, array) {
+      if(string.match(/#\d+/)) {
+        var no = string.match(/#\d+/)[0];
+        if(array[no]) {
+          return array[no];
+        }
+      }
+      return null;
+    }
+
+    function checkLine(string, object, key, array) {
+      if(string.constructor === Array) {
+        for(var i=0; i<string.length; i++) {
+          checkLine(string[i], string, i, array);
+        }
+      }
+      var resp = checkIfRef(string, array);
+      if(resp) {
+        object[key] = resp;
+      }
+    }
+
     function buildObjectTree(array) {
 
+      // loop over the lines in the array (each line of the file)
       for(var i=0; i<array.length; i++) {
-
         var item = array[i];
-
-        if(item['data']) continue;
+        if(!array[i]['data']) continue;
 
         for(var j=0; j<item['data'].length; j++) {
-          var potentialChild = item['data'][i];
-//          if(potentialChild)
+          checkLine(item['data'][j], item['data'], j, array);
         }
-
-
-
       }
 
-      return object;
+      var bimObject = {};
+
     }
 
     //Retrieve the first (and only!) File from the FileList object
