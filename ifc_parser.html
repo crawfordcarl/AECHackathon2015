@@ -1,0 +1,100 @@
+<!--
+
+ Each IFC component is identified by its "line number".
+
+ The tree is generated from these, with each IFC component being represented
+ as a JavaScript object. The Object has data (With unknown an array of unknown
+ attributes).
+
+ These attributes may include references to other IFC Components, which should
+ not be attached to the root node.
+
+-->
+
+<html>
+
+<body>
+<input type="file" id="fileinput" />
+<div id="file"></div>
+<script type="text/javascript">
+  function readSingleFile(evt) {
+
+    function parseLine(array, line) {
+      if(line.match(/#\d+=/)) {
+        var ifcObject = {};
+
+        // line is an IFC line, get the line number
+        var lineNo = line.match(/(#\d+=)/)[0];
+
+        line = line.substring(lineNo.length, line.length);
+        lineNo = lineNo.substring(1, lineNo.length-1);
+
+        var ifcComponent = 'unknown';
+        if(line.match(/\w+\(/)) {
+          ifcComponent = line.match(/\w+\(/)[0];
+          line = line.substring(ifcComponent.length, line.length);
+        }
+
+        ifcObject['id'] = lineNo;
+        ifcObject['ifc'] = ifcComponent.substring(0, ifcComponent.length-1);
+
+        line = line.substring(0, line.lastIndexOf(');')); // remove end chars
+        ifcObject['data'] = line.split(/((?:[^,(']|\([^)]*\))+)/);
+
+        //assign the ifc component to the object
+        array.push(ifcObject);
+      }
+    }
+
+    function buildObjectTree(array) {
+
+      for(var i=0; i<array.length; i++) {
+
+        var item = array[i];
+
+        if(item['data']) continue;
+
+        for(var j=0; j<item['data'].length; j++) {
+          var potentialChild = item['data'][i];
+//          if(potentialChild)
+        }
+
+
+
+      }
+
+      return object;
+    }
+
+    //Retrieve the first (and only!) File from the FileList object
+    var f = evt.target.files[0]; 
+
+    if (f) {
+      var r = new FileReader();
+      r.onload = function(e) { 
+	      var contents = e.target.result;
+
+        var lines = contents.split(/[\r\n]+/g); // tolerate both Windows and Unix linebreaks
+
+        var output = [];
+        for(var i = 0; i < lines.length; i++) {
+//          output.push('<li>' + lines[i] + '<br>');
+          parseLine(output, lines[i]);
+        }
+
+//        buildObjectTree(output);
+
+        console.log(output);
+
+      };
+      r.readAsText(f,"UTF-8");
+
+    } else { 
+      alert("Failed to load file");
+    }
+  }
+
+  document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
+</script>
+</body>
+</html>
