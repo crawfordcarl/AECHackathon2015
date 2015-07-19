@@ -26,20 +26,30 @@
         // line is an IFC line, get the line number
         var lineNo = line.match(/(#\d+=)/)[0];
 
+        //get the line number as defined by the IFC file
         line = line.substring(lineNo.length, line.length);
         lineNo = lineNo.substring(1, lineNo.length-1);
 
+        //get the IFC Component name
         var ifcComponent = 'unknown';
         if(line.match(/\w+\(/)) {
           ifcComponent = line.match(/\w+\(/)[0];
           line = line.substring(ifcComponent.length, line.length);
         }
 
+        //add values to an ifcObject representation
+        line = line.substring(0, line.lastIndexOf(');')); // remove end chars
         ifcObject['id'] = lineNo;
         ifcObject['ifc'] = ifcComponent.substring(0, ifcComponent.length-1);
-
-        line = line.substring(0, line.lastIndexOf(');')); // remove end chars
         ifcObject['data'] = line.split(/((?:[^,(']|\([^)]*\))+)/);
+
+        for(var a=0; a < ifcObject['object'].length; a++) {
+          var item = ifcObject['object'][a];
+          if((item.charAt(0) === '(') && (item.charAt(item.length-1) === ')')) {
+            item = item.substring(1, item.length-1);
+            ifcObject['object'][a] = item.split(',');
+          }
+        }
 
         //assign the ifc component to the object
         array.push(ifcObject);
