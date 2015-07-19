@@ -43,11 +43,11 @@
         ifcObject['ifc'] = ifcComponent.substring(0, ifcComponent.length-1);
         ifcObject['data'] = line.split(/((?:[^,(']|\([^)]*\))+)/);
 
-        for(var a=0; a < ifcObject['object'].length; a++) {
-          var item = ifcObject['object'][a];
+        for(var a=0; a < ifcObject['data'].length; a++) {
+          var item = ifcObject['data'][a];
           if((item.charAt(0) === '(') && (item.charAt(item.length-1) === ')')) {
             item = item.substring(1, item.length-1);
-            ifcObject['object'][a] = item.split(',');
+            ifcObject['data'][a] = item.split(',');
           }
         }
 
@@ -72,11 +72,15 @@
         for(var i=0; i<string.length; i++) {
           checkLine(string[i], string, i, array);
         }
+      } else {
+        var resp = checkIfRef(string, array);
+        if(resp) {
+          array[resp.id]._added = true;
+          object[key] = resp;
+          resp['_added'] = true;
+        }
       }
-      var resp = checkIfRef(string, array);
-      if(resp) {
-        object[key] = resp;
-      }
+
     }
 
     function buildObjectTree(array) {
@@ -92,6 +96,14 @@
       }
 
       var bimObject = {};
+
+      for(var ifc in array) {
+        if(!ifc._added) {
+          bimObject[ifc['id']] = ifc;
+        }
+      }
+
+      return bimObject;
 
     }
 
@@ -111,9 +123,9 @@
           parseLine(output, lines[i]);
         }
 
-//        buildObjectTree(output);
+        var bim = buildObjectTree(output);
 
-        console.log(output);
+        console.log(bim);
 
       };
       r.readAsText(f,"UTF-8");
