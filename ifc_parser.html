@@ -10,7 +10,6 @@
  not be attached to the root node.
 
 -->
-
 <html>
   <head>
     <title> AECHackathon </title>
@@ -98,8 +97,6 @@
         }
       }
 
-      console.log(array);
-
       var bimObject = {};
 
       for(var ifc in array) {
@@ -124,13 +121,10 @@
 
         var output = [];
         for(var i = 0; i < lines.length; i++) {
-//          output.push('<li>' + lines[i] + '<br>');
           parseLine(output, lines[i]);
         }
 
         var bim = buildObjectTree(output);
-
-        console.log(bim);
 
       };
       r.readAsText(f,"UTF-8");
